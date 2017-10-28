@@ -1,6 +1,23 @@
-#!/usr/bin/python
+#`!/usr/bin/python
 import argparse
 import math
+""" 
+    ********************************************************************
+    ********************************************************************
+    *         Generated Filter by CircularDofFilterGenerator tool      *
+    *     Copyright (c)     Kleber A Garcia  (kecho_garcia@hotmail.com)*
+    *         https://github.com/kecho/CircularDofFilterGenerator      *
+    ********************************************************************
+    ********************************************************************
+    **")
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE. 
+"""
 
 def generateFilter(lan, r, c):
     P = []
@@ -94,6 +111,7 @@ def printShaderCommon(r, finalKernels, componentWeights, offsets, scales, syntax
     print("/********************************************************************/")
     print("/*         Generated Filter by CircularDofFilterGenerator tool      */")
     print("/*     Copyright (c)     Kleber A Garcia  (kecho_garcia@hotmail.com)*/")
+    print("/*       https://github.com/kecho/CircularDofFilterGenerator        */")
     print("/********************************************************************/")
     print("/********************************************************************/")
     print("/**")
