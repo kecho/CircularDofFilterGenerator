@@ -57,7 +57,7 @@ def generateFilter(lan, r, c, b):
         return;
 
     #Updated for Olli Niemitalo's updated/optimized kernel function
-    #see near the end of his blog, here: http://yehar.com/blog/?p=1495
+    #see near the middle of his blog, here: http://yehar.com/blog/?p=1495
     #updated kernel distributes final real/imaginary add across separable passes,
     #simplifying shading & reducing total memory usage
     def KernelFun(x, C):
