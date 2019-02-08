@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. 
 """
 
-def generateFilter(lan, r, c):
+def generateFilter(lan, r, c, b):
     P = []
     ##             a         b         A           B
     a = 0
@@ -56,12 +56,15 @@ def generateFilter(lan, r, c):
         print("Invalid component count. Must be [1-5].");
         return;
 
+    #Updated for Olli Niemitalo's updated/optimized kernel function
+    #see near the end of his blog, here: http://yehar.com/blog/?p=1495
+    #updated kernel distributes final real/imaginary add across separable passes,
+    #simplifying shading & reducing total memory usage
     def KernelFun(x, C):
-        return (
-            math.cos(x*x*C[a]) * math.exp( x * x * C[b]), #real
-            math.sin(x*x*C[a]) * math.exp( x * x * C[b]), #imaginary
-            C[A], #real weight
-            C[B]  #imaginary weight
+        return (math.cos(x * x * C[a]) * math.exp(x * x * C[b]), #real
+                math.sin(x * x * C[a]) * math.exp(x * x * C[b]), #imaginary
+                C[A], #real weight
+                C[B]  #imaginary weight
         ) 
 
     kernels = [[KernelFun(float(i)/float(r), C) for i in range(-r,r+1,1)] for C in P]
@@ -78,15 +81,17 @@ def generateFilter(lan, r, c):
 
     #bracket the kernel so we maximize precision. This means figureout a Offset and a Scale
     #            real      imaginary
-    scales  = [] 
-    offsets = [reduce((lambda v1, v2: (min(v1[0],v2[0]),min(v1[1],v2[1]))), k) for k in kernelsNormalized]
-    for (k,o) in zip(kernelsNormalized, offsets):
-        scale = (0.0 ,0.0)
-        for v in k:
-            realScale = v[0] - o[0]
-            immScale  = v[1] - o[1]
-            scale = (scale[0]+realScale, scale[1]+immScale)
-        scales.append(scale)
+    #unsure about bracketing, make it disablable for now (+ disabled by default)
+    if b:
+        scales  = [] 
+        offsets = [reduce((lambda v1, v2: (min(v1[0],v2[0]),min(v1[1],v2[1]))), k) for k in kernelsNormalized]
+        for (k,o) in zip(kernelsNormalized, offsets):
+            scale = (0.0 ,0.0)
+            for v in k:
+                realScale = v[0] - o[0]
+                immScale  = v[1] - o[1]
+                scale = (scale[0]+realScale, scale[1]+immScale)
+            scales.append(scale)
             
     #print(offsets)
     #print(scales)
@@ -147,8 +152,9 @@ def main():
     parser.add_argument('-l', dest='Language', metavar='Language', type=str, help='Language to use. Default is hlsl, possible values "hlsl" or "glsl".', choices=["hlsl","glsl"], default="hlsl");
     parser.add_argument('-r', dest='FilterRadius', metavar='FilerRadius', type=int, help='Filter Radius (in pixels). Default is 8 (diameter of 17)', default=8);
     parser.add_argument('-c', dest='Components', metavar='ComponentCount', type=int, help='Component count. Default is 2.', default=2);
+    parser.add_argument('-b', dest='UseBracketing', metavar='ComponentCount', type=bool, help='Whether or not to use bracketing; conservative default is false.', default=false);
     args = parser.parse_args()
-    generateFilter(args.Language, args.FilterRadius, args.Components)
+    generateFilter(args.Language, args.FilterRadius, args.Components, args.UseBracketing)
 
 if __name__ == "__main__":
     main()
