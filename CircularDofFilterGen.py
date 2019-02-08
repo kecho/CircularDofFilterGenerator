@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import argparse
 import math
+from functools import reduce
 
 """ 
     ********************************************************************
