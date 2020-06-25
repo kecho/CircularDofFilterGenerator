@@ -21,7 +21,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. 
 """
 
-def generateFilter(lan, r, c):
+def generateFilter(lan, r, c, t):
+    if t <= -1:
+        print("Invalid transition bandwidth. Must be greater than -1 and preferably positive.");
+        return;
+    
     P = []
     ##             a         b         A           B
     a = 0
@@ -64,7 +68,8 @@ def generateFilter(lan, r, c):
             C[B]  #imaginary weight
         ) 
 
-    kernels = [[KernelFun(float(i)/float(r), C) for i in range(-r,r+1,1)] for C in P]
+    totalBandwidth = 1.0 + t
+    kernels = [[KernelFun(totalBandwidth * float(i)/float(r), C) for i in range(-r,r+1,1)] for C in P]
 
     #normalize kernels
     accum = 0.0
@@ -147,8 +152,9 @@ def main():
     parser.add_argument('-l', dest='Language', metavar='Language', type=str, help='Language to use. Default is hlsl, possible values "hlsl" or "glsl".', choices=["hlsl","glsl"], default="hlsl");
     parser.add_argument('-r', dest='FilterRadius', metavar='FilerRadius', type=int, help='Filter Radius (in pixels). Default is 8 (diameter of 17)', default=8);
     parser.add_argument('-c', dest='Components', metavar='ComponentCount', type=int, help='Component count. Default is 2.', default=2);
+    parser.add_argument('-t', dest='Transition', metavar='TransitionBandwidth', type=float, help='Transition bandwidth. Default is 0. Values of [0.2 .. 0.4] work best.', default=0);
     args = parser.parse_args()
-    generateFilter(args.Language, args.FilterRadius, args.Components)
+    generateFilter(args.Language, args.FilterRadius, args.Components, args.Transition)
 
 if __name__ == "__main__":
     main()
