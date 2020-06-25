@@ -99,6 +99,54 @@ def generateFilter(lan, r, c):
     else:
         printGlsl(r, finalKernels, componentWeights, offsets, scales)
                 
+    # Visualize the kernel
+    shouldVisualize = False # Set to True to visuzlize
+    saveToFile = "kernel.png" # or None
+    if not shouldVisualize: return
+    
+    try:
+        from PIL import Image, ImageFilter
+    except ImportError:
+        print("/** Pillow not found! Try running [python3 -m pip install --upgrade Pillow] if you want to visualize the kernel **/")
+        return
+    
+    d = r * 2 + 1
+    realKernel = [[0 for x in range(d)] for y in range(d)] 
+    
+    # Note that the kernels are already the result of a horizontal blur of a single white pixel (val = 1.0)
+    # To visualize it we only need a vertical blur
+    for x in range(d):
+        for y in range(d):
+            for i in range(len(finalKernels)):
+                k = finalKernels[i]
+                A,  B  = componentWeights[i][0], componentWeights[i][1]
+                Pr, Pi = k[x][0], k[x][1]
+                Qr, Qi = k[y][0], k[y][1]
+                R,  I  = Pr * Qr - Pi * Qi, Pr * Qi + Pi * Qr
+                S = A * R + B * I
+                realKernel[x][y] = realKernel[x][y] + S
+                
+    maxV = 0
+    for x in range(d):
+        for y in range(d):
+            maxV = max(maxV, abs(realKernel[x][y]))
+    maxV = 128 / maxV
+
+    pixelW = 8
+    width = d * pixelW
+    height = d * pixelW
+    img = Image.new("RGB", (width, height))
+    imgMap = img.load()
+
+    for y in range(height):
+        for x in range(width):
+            val = 128 + (int)(maxV * realKernel[(int)(x/pixelW)][(int)(y/pixelW)])
+            imgMap[x, y] = (val, val, val)
+
+    if (saveToFile):
+        img.save(saveToFile)
+
+    img.show()
 
 def printHlsl(r, finalKernels, componentWeights, offsets, scales):
     syntax = ("uint", "float", "static const", "{", "};")
